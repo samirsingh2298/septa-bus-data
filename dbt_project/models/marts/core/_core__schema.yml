@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: dim_route
+    columns:
+      - name: route_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_stop
+    columns:
+      - name: stop_id
+        tests:
+          - not_null

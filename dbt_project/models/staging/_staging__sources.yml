@@ -1,0 +1,38 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: main
+    tables:
+      - name: transitview_all_raw
+        description: >
+          Flattened vehicle-observation records landed every 5 minutes from
+          TransitViewAll. One record per vehicle per poll. Field names are
+          already normalized by the Python ingestion layer (see
+          ingestion/septa_client/normalize.py) since TransitViewAll's raw
+          response shape isn't formally documented by SEPTA.
+        meta:
+          external_location: "read_json_auto('{{ env_var('RAW_DATA_PATH', '/app/data/raw') }}/transitview_all/dt=*/*.json.gz', hive_partitioning=true, filename=true)"
+
+      - name: stops_by_route_raw
+        description: >
+          Stop id/name/lat/lon per route, landed daily from the Stops API
+          for every route_id observed live over the prior day. Covers
+          ad-hoc routes that never appear in GTFS.
+        meta:
+          external_location: "read_json_auto('{{ env_var('RAW_DATA_PATH', '/app/data/raw') }}/stops_by_route/dt=*/route=*/*.json.gz', hive_partitioning=true, filename=true)"
+
+      - name: gtfs_routes_raw
+        description: GTFS routes.txt, refreshed weekly. Scheduled-route reference only.
+        meta:
+          external_location: "read_csv_auto('{{ env_var('RAW_DATA_PATH', '/app/data/raw') }}/gtfs/dt=*/routes.txt', hive_partitioning=true, filename=true)"
+
+      - name: gtfs_shapes_raw
+        description: GTFS shapes.txt (route polylines), refreshed weekly. Scheduled routes only.
+        meta:
+          external_location: "read_csv_auto('{{ env_var('RAW_DATA_PATH', '/app/data/raw') }}/gtfs/dt=*/shapes.txt', hive_partitioning=true, filename=true)"
+
+      - name: gtfs_trips_raw
+        description: GTFS trips.txt, refreshed weekly. Links route_id to shape_id.
+        meta:
+          external_location: "read_csv_auto('{{ env_var('RAW_DATA_PATH', '/app/data/raw') }}/gtfs/dt=*/trips.txt', hive_partitioning=true, filename=true)"

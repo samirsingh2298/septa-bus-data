@@ -1,0 +1,48 @@
+services:
+  dagster-daemon:
+    build:
+      context: .
+      dockerfile: docker/dagster.Dockerfile
+    command: dagster-daemon run
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - dagster_home:/app/dagster_home
+    restart: unless-stopped
+
+  dagster-webserver:
+    build:
+      context: .
+      dockerfile: docker/dagster.Dockerfile
+    command: dagster-webserver -w workspace.yaml -h 0.0.0.0 -p 3000
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - dagster_home:/app/dagster_home
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dagster-daemon
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/streamlit.Dockerfile
+    env_file: .env
+    environment:
+      # Streamlit only ever reads; dagster-daemon is the sole writer.
+      - DUCKDB_PATH=/app/data/duckdb/septa.duckdb
+    volumes:
+      - ./data/duckdb:/app/data/duckdb:ro
+    ports:
+      - "8501:8501"
+    depends_on:
+      - dagster-daemon
+    restart: unless-stopped
+
+volumes:
+  # Shared Dagster instance storage (run/event/schedule state, daemon
+  # heartbeats) - daemon and webserver are separate containers and MUST see
+  # the same DAGSTER_HOME or the webserver can't tell the daemon is running.
+  dagster_home:

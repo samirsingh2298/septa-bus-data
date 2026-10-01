@@ -1,0 +1,9 @@
+# Dagster instance config. DAGSTER_HOME must point here (holds run/event
+# metadata in the default local SQLite backend - no Postgres needed at this
+# scale). Deliberately kept separate from data/ since this is operational
+# metadata, not pipeline data.
+run_coordinator:
+  module: dagster.core.run_coordinator
+  class: QueuedRunCoordinator
+  config:
+    max_concurrent_runs: 1

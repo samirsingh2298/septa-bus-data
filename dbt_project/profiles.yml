@@ -1,0 +1,9 @@
+septa:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../data/duckdb/septa.duckdb') }}"
+      extensions:
+        - icu
+      threads: 4

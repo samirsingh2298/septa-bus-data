@@ -1,0 +1,4 @@
+load_from:
+  - python_module:
+      module_name: septa_dagster.definitions
+      attribute: defs

@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: stg_transitview_all__vehicle_positions
+    columns:
+      - name: vehicle_id
+        tests:
+          - not_null
+      - name: route_id
+        tests:
+          - not_null
+      - name: ingested_at
+        tests:
+          - not_null
+      - name: minutes_late
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -60
+                max_value: 300
+                inclusive: true
+              config:
+                severity: warn

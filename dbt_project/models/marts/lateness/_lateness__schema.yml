@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: fct_vehicle_observations
+    columns:
+      - name: observation_id
+        tests:
+          - unique
+          - not_null
+      - name: route_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_route')
+                field: route_id
+              config:
+                severity: warn
